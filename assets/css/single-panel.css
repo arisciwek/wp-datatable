@@ -81,6 +81,8 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: var(--wpdt-sp-spacing);
     margin-bottom: var(--wpdt-sp-spacing-lg);
+    margin-left: 15px;   /* Align with panel container */
+    margin-right: 15px;  /* Align with panel container */
 }
 
 /* Stat Box */
@@ -138,6 +140,8 @@
     border-radius: 4px;
     padding: var(--wpdt-sp-spacing);
     margin-bottom: var(--wpdt-sp-spacing-lg);
+    margin-left: 15px;   /* Align with panel container */
+    margin-right: 15px;  /* Align with panel container */
 }
 
 .wpdt-filters-wrapper {
@@ -212,11 +216,18 @@
    Panel Container
    ========================================================================== */
 
+/* Main container - use same pattern as dual panel */
+.wpdt-datatable-container {
+    margin: 0 -15px 20px -15px; /* Full width - matches dual panel */
+}
+
 .wpdt-single-panel-container {
     background: var(--wpdt-sp-bg);
     border: 1px solid var(--wpdt-sp-border);
     border-radius: 4px;
     overflow: hidden;
+    margin-left: 15px;   /* Offset negative margin */
+    margin-right: 15px;  /* Offset negative margin */
 }
 
 .wpdt-panel-content {

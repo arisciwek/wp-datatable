@@ -63,29 +63,32 @@ class PanelLayoutTemplate {
         }
 
         ?>
-        <div class="<?php echo esc_attr(implode(' ', $container_classes)); ?>"
-             data-entity="<?php echo esc_attr($config['entity']); ?>">
+        <!-- DataTable Container - matches dual panel pattern -->
+        <div class="wpdt-datatable-container">
+            <div class="<?php echo esc_attr(implode(' ', $container_classes)); ?>"
+                 data-entity="<?php echo esc_attr($config['entity']); ?>">
 
-            <div class="wpdt-panel-content">
-                <?php
-                /**
-                 * Action: Render panel content
-                 *
-                 * Main content hook untuk single panel.
-                 * Plugins render their datatable here.
-                 *
-                 * @param array $config Layout configuration
-                 *
-                 * @example
-                 * add_action('wpdt_panel_content', function($config) {
-                 *     if ($config['entity'] !== 'logs') return;
-                 *     include __DIR__ . '/views/logs/datatable.php';
-                 * });
-                 */
-                do_action('wpdt_panel_content', $config);
-                ?>
+                <div class="wpdt-panel-content">
+                    <?php
+                    /**
+                     * Action: Render panel content
+                     *
+                     * Main content hook untuk single panel.
+                     * Plugins render their datatable here.
+                     *
+                     * @param array $config Layout configuration
+                     *
+                     * @example
+                     * add_action('wpdt_panel_content', function($config) {
+                     *     if ($config['entity'] !== 'logs') return;
+                     *     include __DIR__ . '/views/logs/datatable.php';
+                     * });
+                     */
+                    do_action('wpdt_panel_content', $config);
+                    ?>
+                </div>
+
             </div>
-
         </div>
         <?php
 

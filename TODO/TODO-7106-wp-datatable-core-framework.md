@@ -1296,6 +1296,8 @@ add_action('wpdt_panel_content', function($config) {
 - [x] Test plugin activated
 - [x] Dual panel test page created
 - [x] Single panel test page created
+- [x] Fixed autoloader issue (renamed folders to PascalCase)
+- [x] Disabled update checker (local development)
 - [ ] Manual browser testing (dual panel)
 - [ ] Manual browser testing (single panel)
 - [ ] Edge cases & performance
