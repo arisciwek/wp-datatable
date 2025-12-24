@@ -857,6 +857,127 @@ html {
 }
 
 /* ===================================================================
+   DATATABLE ACTION BUTTONS
+   Styling untuk action buttons di dalam DataTable cells
+   Prefix: wpdt-action-btn
+   =================================================================== */
+
+:root {
+    /* Action Button Colors */
+    --wpdt-action-btn-bg: #f0f0f1;
+    --wpdt-action-btn-border: #8c8f94;
+    --wpdt-action-btn-color: #2c3338;
+    --wpdt-action-btn-hover-bg: #fff;
+    --wpdt-action-btn-hover-border: #2271b1;
+    --wpdt-action-btn-hover-color: #2271b1;
+    --wpdt-action-btn-padding: 4px;
+    --wpdt-action-btn-gap: 4px;
+    --wpdt-action-btn-border-radius: 3px;
+}
+
+/* Action Buttons Container */
+.wpdt-datatable .wpdt-action-buttons {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: var(--wpdt-action-btn-gap);
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* Ensure Actions column td displays buttons in one line */
+.wpdt-datatable tbody td:last-child {
+    white-space: nowrap !important;
+}
+
+.wpdt-datatable tbody td {
+    vertical-align: middle;
+}
+
+/* Base Action Button Styling */
+.wpdt-datatable .wpdt-action-btn,
+.wpdt-datatable .button.button-small,
+.wpdt-datatable tbody .button.button-small,
+table.wpdt-datatable .button.button-small {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: var(--wpdt-action-btn-padding);
+    background: var(--wpdt-action-btn-bg);
+    border: 1px solid var(--wpdt-action-btn-border);
+    border-radius: var(--wpdt-action-btn-border-radius);
+    color: var(--wpdt-action-btn-color);
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    text-decoration: none;
+    transition: all var(--wpdt-transition-speed) var(--wpdt-transition-easing);
+    vertical-align: middle;
+    white-space: nowrap;
+    margin: 0 2px;
+}
+
+/* Action Button Hover State */
+.wpdt-datatable .wpdt-action-btn:hover,
+.wpdt-datatable .button.button-small:hover {
+    background: var(--wpdt-action-btn-hover-bg);
+    border-color: var(--wpdt-action-btn-hover-border);
+    color: var(--wpdt-action-btn-hover-color);
+}
+
+/* Dashicons inside Action Buttons */
+.wpdt-datatable .wpdt-action-btn .dashicons,
+.wpdt-datatable .button.button-small .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+}
+
+/* Action Button Focus State (Accessibility) */
+.wpdt-datatable .wpdt-action-btn:focus,
+.wpdt-datatable .button.button-small:focus {
+    outline: 2px solid var(--wpdt-action-btn-hover-border);
+    outline-offset: 2px;
+}
+
+/* Specific Button Variants */
+.wpdt-datatable .wpdt-action-btn.wpdt-view-btn {
+    --wpdt-action-btn-hover-color: #135e96;
+    --wpdt-action-btn-hover-border: #135e96;
+}
+
+.wpdt-datatable .wpdt-action-btn.wpdt-edit-btn {
+    --wpdt-action-btn-hover-color: #d63638;
+    --wpdt-action-btn-hover-border: #d63638;
+}
+
+.wpdt-datatable .wpdt-action-btn.wpdt-delete-btn {
+    --wpdt-action-btn-hover-color: #d63638;
+    --wpdt-action-btn-hover-border: #d63638;
+}
+
+/* Support for actual button classes used in CustomerDataTableModel */
+.wpdt-datatable .button.wpdt-panel-trigger,
+.wpdt-datatable button.wpdt-panel-trigger {
+    --wpdt-action-btn-hover-color: #135e96;
+    --wpdt-action-btn-hover-border: #135e96;
+}
+
+.wpdt-datatable .button.customer-edit-btn,
+.wpdt-datatable button.customer-edit-btn {
+    --wpdt-action-btn-hover-color: #00a32a;
+    --wpdt-action-btn-hover-border: #00a32a;
+}
+
+.wpdt-datatable .button.customer-delete-btn,
+.wpdt-datatable button.customer-delete-btn {
+    --wpdt-action-btn-hover-color: #d63638;
+    --wpdt-action-btn-hover-border: #d63638;
+}
+
+/* ===================================================================
    ACCESSIBILITY
    =================================================================== */
 

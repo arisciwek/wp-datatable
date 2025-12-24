@@ -21,6 +21,7 @@ This documentation is organized into the following sections:
 - [Single Panel Pattern](patterns/single-panel.md)
 - [Tab System](patterns/tab-system.md)
 - [Lazy Loading](patterns/lazy-loading.md)
+- [Responsive Columns](patterns/responsive-columns.md) ⭐ NEW
 - [Event System](patterns/event-system.md)
 
 ### 📖 [API Reference](api/)

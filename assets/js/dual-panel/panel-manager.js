@@ -383,6 +383,9 @@
                 if (self.dataTable) {
                     console.log('  → DataTable found, adjusting columns...');
 
+                    // Hide responsive columns when panel opens
+                    self.toggleResponsiveColumns(false);
+
                     // Force recalculation of column widths
                     // NO REDRAW needed - columns.adjust() is enough for panel resize
                     // This prevents flicker in left panel
@@ -447,6 +450,9 @@
                 // Adjust DataTable for full width
                 if (self.dataTable) {
                     console.log('[WPDT Panel] Adjusting DataTable after panel closed');
+
+                    // Show responsive columns when panel closes
+                    self.toggleResponsiveColumns(true);
 
                     // Force recalculation of column widths
                     self.dataTable.columns.adjust();
@@ -860,6 +866,67 @@
          */
         close() {
             this.closePanel();
+        }
+
+        /**
+         * Toggle responsive columns visibility
+         *
+         * Hides/shows columns based on panel state for better responsiveness.
+         * Columns are marked as responsive via data-responsive-priority attribute.
+         *
+         * Usage in DataTable column definition:
+         * {
+         *     data: 'email',
+         *     name: 'email',
+         *     responsivePriority: 2  // Hide when panel opens
+         * }
+         *
+         * Priority levels:
+         * - 1 = Always visible (highest priority)
+         * - 2 = Hidden when panel opens (medium priority)
+         * - 3+ = Hidden on smaller screens (low priority)
+         *
+         * @param {boolean} show True to show all columns, false to hide responsive columns
+         */
+        toggleResponsiveColumns(show) {
+            if (!this.dataTable) {
+                return;
+            }
+
+            console.log('[WPDT Panel] Toggling responsive columns:', show ? 'SHOW' : 'HIDE');
+
+            const api = this.dataTable;
+
+            // Get all columns
+            const columns = api.settings()[0].aoColumns;
+
+            columns.forEach(function(column, index) {
+                // Check if column has responsivePriority setting
+                const priority = column.responsivePriority;
+
+                if (priority === undefined) {
+                    // No priority set, always visible
+                    return;
+                }
+
+                if (priority === 1) {
+                    // Priority 1 = always visible
+                    return;
+                }
+
+                // Priority 2+ = hide when panel opens
+                if (show) {
+                    // Panel closed - show all responsive columns
+                    api.column(index).visible(true, false); // false = no redraw yet
+                    console.log('  → Column', index, '(priority', priority, ') shown');
+                } else {
+                    // Panel open - hide responsive columns
+                    api.column(index).visible(false, false); // false = no redraw yet
+                    console.log('  → Column', index, '(priority', priority, ') hidden');
+                }
+            });
+
+            console.log('[WPDT Panel] Responsive columns toggled');
         }
     }
 
