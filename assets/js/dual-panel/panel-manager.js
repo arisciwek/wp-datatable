@@ -226,6 +226,31 @@
                 }
             });
 
+            // Listen for panel open request (triggered after save/update operations)
+            // Generic event that any plugin can trigger to open panel
+            $(document).on('wpdt:panel-open-request', function(e, data) {
+                console.log('[WPDT Panel] Panel open request received', data);
+
+                if (!data || !data.id) {
+                    console.error('[WPDT Panel] Invalid panel open request - missing ID', data);
+                    return;
+                }
+
+                // Check if this request is for our entity type
+                const requestEntity = data.entity || null;
+                if (requestEntity && requestEntity !== self.currentEntity) {
+                    console.log('[WPDT Panel] Panel open request for different entity type - ignoring', {
+                        request: requestEntity,
+                        current: self.currentEntity
+                    });
+                    return;
+                }
+
+                // Open panel with requested ID
+                console.log('[WPDT Panel] Opening panel for ID:', data.id);
+                self.openPanel(data.id);
+            });
+
             // Click outside to close (optional)
             // Uncomment if you want this behavior
             // $(document).on('click', function(e) {

@@ -99,6 +99,27 @@ class DualPanelAssets extends BaseAssets {
             true
         );
 
+        // Action Buttons Handler - Global edit/delete button handlers
+        wp_enqueue_script(
+            'wpdt-action-buttons-handler',
+            $plugin_url . 'assets/js/dual-panel/action-buttons-handler.js',
+            ['jquery', 'datatables'],
+            $version,
+            true
+        );
+
+        // Modal Integration - Auto-wire action buttons to WP-Modal
+        // Only enqueued if wp-modal plugin is active
+        if (wp_script_is('wp-modal', 'registered') || wp_script_is('wp-modal', 'enqueued')) {
+            wp_enqueue_script(
+                'wpdt-modal-integration',
+                $plugin_url . 'assets/js/dual-panel/modal-integration.js',
+                ['jquery', 'wpdt-action-buttons-handler', 'wp-modal'],
+                $version,
+                true
+            );
+        }
+
         // Tab Manager - Tab navigation and keyboard support
         wp_enqueue_script(
             'wpdt-tab-manager',
