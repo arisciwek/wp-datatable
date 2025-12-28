@@ -109,16 +109,15 @@ class DualPanelAssets extends BaseAssets {
         );
 
         // Modal Integration - Auto-wire action buttons to WP-Modal
-        // Only enqueued if wp-modal plugin is active
-        if (wp_script_is('wp-modal', 'registered') || wp_script_is('wp-modal', 'enqueued')) {
-            wp_enqueue_script(
-                'wpdt-modal-integration',
-                $plugin_url . 'assets/js/dual-panel/modal-integration.js',
-                ['jquery', 'wpdt-action-buttons-handler', 'wp-modal'],
-                $version,
-                true
-            );
-        }
+        // Note: Don't use 'wp-modal' as dependency due to alphabetical loading race condition
+        // modal-integration.js will check for WPModal availability at runtime
+        wp_enqueue_script(
+            'wpdt-modal-integration',
+            $plugin_url . 'assets/js/dual-panel/modal-integration.js',
+            ['jquery', 'wpdt-action-buttons-handler'],
+            $version,
+            true
+        );
 
         // Tab Manager - Tab navigation and keyboard support
         wp_enqueue_script(
@@ -138,11 +137,25 @@ class DualPanelAssets extends BaseAssets {
             true
         );
 
+        // Get localize data and allow plugins to inject entity configs
+        $localize_data = $this->get_localize_data();
+
+        /**
+         * Filter: wpdt_localize_data
+         *
+         * Allows plugins to inject entity-specific configuration into wpdtConfig.
+         * Example: action_buttons config for modal integration.
+         *
+         * @param array $localize_data Base config from DualPanelAssets
+         * @return array Modified config with entity configs
+         */
+        $localize_data = apply_filters('wpdt_localize_data', $localize_data);
+
         // Localize data to panel manager (main entry point)
         wp_localize_script(
             'wpdt-panel-manager',
             'wpdtConfig',
-            $this->get_localize_data()
+            $localize_data
         );
     }
 

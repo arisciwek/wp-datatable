@@ -130,9 +130,9 @@
             // Build AJAX URL for form
             var formUrl = ajaxurl + '?action=' + config.ajax_action + '&id=' + id;
 
-            // Add nonce if configured
-            if (config.nonce_action && typeof wpApiSettings !== 'undefined') {
-                formUrl += '&nonce=' + wpApiSettings.nonce;
+            // Add nonce from wpdtConfig
+            if (this.configs.nonce) {
+                formUrl += '&nonce=' + this.configs.nonce;
             }
 
             // Show modal with form
@@ -197,9 +197,9 @@
             // Prepare AJAX data
             var ajaxData = formData + '&action=' + config.submit_action + '&id=' + id;
 
-            // Add nonce if configured
-            if (config.nonce_action && typeof wpApiSettings !== 'undefined') {
-                ajaxData += '&nonce=' + wpApiSettings.nonce;
+            // Add nonce from wpdtConfig
+            if (this.configs.nonce) {
+                ajaxData += '&nonce=' + this.configs.nonce;
             }
 
             console.log('[WPDT Modal] Submitting form for', entity, id);
@@ -281,9 +281,9 @@
                 id: id
             };
 
-            // Add nonce if configured
-            if (config.nonce_action && typeof wpApiSettings !== 'undefined') {
-                ajaxData.nonce = wpApiSettings.nonce;
+            // Add nonce from wpdtConfig
+            if (this.configs.nonce) {
+                ajaxData.nonce = this.configs.nonce;
             }
 
             $.ajax({

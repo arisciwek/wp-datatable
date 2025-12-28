@@ -655,6 +655,36 @@
                 $titleEl.text(data.title);
             }
 
+            // Update action buttons if provided
+            if (data.actions && Array.isArray(data.actions)) {
+                console.log('[WPDT Panel] Rendering action buttons:', data.actions.length);
+                const $actionsContainer = this.rightPanel.find('.wpdt-panel-actions');
+                $actionsContainer.empty(); // Clear existing buttons
+
+                data.actions.forEach(function(action) {
+                    const $button = $('<button>')
+                        .attr('type', 'button')
+                        .addClass(action.class || 'button')
+                        .text(action.label || '');
+
+                    // Add icon if provided
+                    if (action.icon) {
+                        $button.prepend($('<span>').addClass('dashicons ' + action.icon).css('margin-right', '5px'));
+                    }
+
+                    // Add data attributes
+                    if (action.data) {
+                        Object.keys(action.data).forEach(function(key) {
+                            $button.attr('data-' + key, action.data[key]);
+                        });
+                    }
+
+                    $actionsContainer.append($button);
+                });
+
+                console.log('[WPDT Panel] Action buttons rendered successfully');
+            }
+
             // Update tab content if provided
             if (data.tabs) {
                 console.log('[WPDT Panel] Updating tabs:', Object.keys(data.tabs));

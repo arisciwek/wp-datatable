@@ -151,6 +151,9 @@ class PanelLayoutTemplate {
             <h2 class="wpdt-panel-title">
                 <span class="wpdt-entity-name"></span>
             </h2>
+            <div class="wpdt-panel-actions">
+                <!-- Action buttons will be dynamically inserted here -->
+            </div>
             <button type="button" class="wpdt-panel-close" aria-label="<?php esc_attr_e('Close', 'wp-datatable'); ?>">
                 <span class="dashicons dashicons-no-alt"></span>
             </button>

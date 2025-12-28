@@ -47,6 +47,13 @@ Plugin ini dirancang untuk:
 
 ## ✨ Features
 
+### Auto-Wire System (Zero JavaScript!)
+- ✅ **Config-Driven Buttons** - Edit/Delete buttons auto-wired via filter injection
+- ✅ **Modal Integration** - Seamless integration dengan wp-modal plugin
+- ✅ **Automatic AJAX** - Nonce handling, success/error messages, DataTable refresh
+- ✅ **Zero JavaScript** - Consumer plugins hanya perlu 3 AJAX handlers (get_form, update, delete)
+- ✅ **Event-Driven** - Framework handles ALL modal interactions
+
 ### Dual Panel Layout
 - ✅ **Master-Detail Pattern** - 45% left panel (listing), 55% right panel (detail)
 - ✅ **Sliding Animations** - Smooth panel transitions
@@ -55,6 +62,7 @@ Plugin ini dirancang untuk:
 - ✅ **AJAX Loading** - Dynamic content loading untuk panel & tabs
 - ✅ **Stats Boxes** - Optional statistics grid (1-4 columns)
 - ✅ **Filters** - Optional filter controls
+- ✅ **Per-Row Actions** - Action buttons inside DataTable rows
 
 ### Single Panel Layout
 - ✅ **Full-Width Layout** - Simple, clean listing
@@ -68,6 +76,7 @@ Plugin ini dirancang untuk:
 - ✅ **Auto-Detection** - Load only needed assets
 - ✅ **Localized Data** - Pass config to JavaScript
 - ✅ **CDN Support** - DataTables.js from CDN
+- ✅ **Modal Integration** - Auto-load modal-integration.js for dual panel
 
 ---
 
@@ -77,6 +86,7 @@ Plugin ini dirancang untuk:
 - WordPress 5.0+
 - PHP 7.4+
 - jQuery (WordPress core)
+- **wp-modal** plugin (required for auto-wire system)
 
 ### Install Plugin
 
@@ -86,20 +96,69 @@ cd wp-content/plugins/
 git clone [repository-url] wp-datatable
 ```
 
-2. **Activate** plugin via WordPress Admin:
+2. **Install wp-modal** (required dependency):
+```bash
+wp plugin install wp-modal --activate
+```
+
+3. **Activate** wp-datatable:
 ```bash
 wp plugin activate wp-datatable
 ```
 
-3. **Verify** activation:
+4. **Verify** activation:
 ```bash
 wp plugin list | grep wp-datatable
 # Output: wp-datatable  active  none  0.1.0  off
 ```
 
+5. **(Optional) Install demo plugin** untuk testing:
+```bash
+wp plugin activate wp-datatable-test
+# Visit: WP Admin → Dual Panel Test
+```
+
 ---
 
 ## 🚀 Quick Start
+
+### Example 0: Complete Auto-Wire Reference (RECOMMENDED!)
+
+**Cara tercepat:** Copy dan customize complete auto-wire example!
+
+```bash
+# 1. Copy example file ke plugin Anda
+cp wp-content/plugins/wp-datatable/examples/complete-auto-wire-example.php \
+   wp-content/plugins/your-plugin/includes/
+
+# 2. Rename class dan entity
+# - Class: WP_DataTable_Complete_AutoWire_Example → Your_Entity_Class
+# - Entity: 'test_dual' → 'your_entity'
+
+# 3. Implement 3 AJAX handlers dengan business logic Anda
+# - ajax_get_edit_form()   → Load form HTML
+# - ajax_update()          → Save data
+# - ajax_delete()          → Delete data
+
+# 4. Done! Framework handles all modal interactions automatically.
+```
+
+**File reference:** `wp-datatable/examples/complete-auto-wire-example.php`
+
+**Features included:**
+- ✅ Dual panel layout dengan tabs
+- ✅ Auto-wire Edit/Delete buttons (ZERO JavaScript!)
+- ✅ Filter-based config injection
+- ✅ Tab structure definition
+- ✅ DataTable inside tab dengan action buttons per row
+- ✅ Automatic nonce handling
+- ✅ Modal integration
+- ✅ Success/error notifications
+- ✅ DataTable auto-refresh
+
+**Live demo:** Aktifkan `wp-datatable-test` plugin, visit **WP Admin → Dual Panel Test**
+
+---
 
 ### Example 1: Dual Panel (Minimal)
 
@@ -381,6 +440,195 @@ jQuery(document).ready(function($) {
 
 ---
 
+## ⚡ Auto-Wire System (Zero JavaScript!)
+
+### Overview
+
+Auto-Wire System menghilangkan kebutuhan JavaScript pada consumer plugins untuk Edit/Delete functionality. Framework handles semua modal interactions secara otomatis.
+
+**Consumer plugins HANYA perlu:**
+1. Add action buttons dengan classes khusus (`wpdt-edit-btn`, `wpdt-delete-btn`)
+2. Create 3 AJAX handlers (get_form, update, delete)
+3. Inject config via filter `wpdt_localize_data`
+
+**Framework handles:**
+- ✅ Modal open/close
+- ✅ AJAX requests dengan nonce
+- ✅ DataTable refresh after operations
+- ✅ Success/error notifications
+- ✅ ALL UI interactions
+
+### Step 1: Add Action Buttons
+
+```php
+// In your DataTable HTML
+<button class="button button-small wpdt-edit-btn"
+        data-id="<?php echo $item->id; ?>"
+        data-entity="customer">
+    <span class="dashicons dashicons-edit"></span> Edit
+</button>
+
+<button class="button button-small wpdt-delete-btn"
+        data-id="<?php echo $item->id; ?>"
+        data-entity="customer">
+    <span class="dashicons dashicons-trash"></span> Delete
+</button>
+```
+
+**Required attributes:**
+- `class="wpdt-edit-btn"` atau `class="wpdt-delete-btn"`
+- `data-id="123"` - Entity ID
+- `data-entity="customer"` - Entity name
+
+### Step 2: Inject Auto-Wire Config
+
+```php
+add_filter('wpdt_localize_data', function($data) {
+    // Only inject on your admin page
+    if (!isset($_GET['page']) || $_GET['page'] !== 'my-customers') {
+        return $data;
+    }
+
+    $data['customer'] = [
+        'action_buttons' => [
+            'edit' => [
+                'enabled' => true,
+                'ajax_action' => 'my_get_customer_form',
+                'submit_action' => 'my_update_customer',
+                'modal_title' => 'Edit Customer',
+                'success_message' => 'Customer updated!',
+                'modal_size' => 'medium', // small, medium, large
+            ],
+            'delete' => [
+                'enabled' => true,
+                'ajax_action' => 'my_delete_customer',
+                'confirm_title' => 'Delete Customer',
+                'confirm_message' => 'Are you sure?',
+                'success_message' => 'Customer deleted!',
+            ],
+        ],
+    ];
+
+    return $data;
+});
+```
+
+### Step 3: Create AJAX Handlers
+
+```php
+// Handler 1: Get edit form HTML
+add_action('wp_ajax_my_get_customer_form', function() {
+    check_ajax_referer('wpdt_nonce', 'nonce');
+
+    $id = intval($_POST['id']);
+    $customer = get_customer($id); // Your logic
+
+    ob_start();
+    ?>
+    <form id="customer-form">
+        <input type="text" name="name" value="<?php echo esc_attr($customer->name); ?>">
+        <!-- Your form fields -->
+    </form>
+    <?php
+    $html = ob_get_clean();
+
+    wp_send_json_success(['html' => $html]);
+});
+
+// Handler 2: Update customer
+add_action('wp_ajax_my_update_customer', function() {
+    check_ajax_referer('wpdt_nonce', 'nonce');
+
+    $id = intval($_POST['id']);
+    $name = sanitize_text_field($_POST['name']);
+
+    // Your update logic
+    update_customer($id, ['name' => $name]);
+
+    wp_send_json_success([
+        'message' => 'Customer updated successfully!',
+    ]);
+});
+
+// Handler 3: Delete customer
+add_action('wp_ajax_my_delete_customer', function() {
+    check_ajax_referer('wpdt_nonce', 'nonce');
+
+    $id = intval($_POST['id']);
+
+    // Your delete logic
+    delete_customer($id);
+
+    wp_send_json_success([
+        'message' => 'Customer deleted successfully!',
+    ]);
+});
+```
+
+### That's It!
+
+**ZERO JavaScript required!** Framework automatically:
+- Opens modal saat Edit button clicked
+- Loads form via AJAX dengan nonce
+- Handles form submission
+- Shows confirmation dialog untuk Delete
+- Refreshes DataTable after success
+- Displays success/error notifications
+
+### Advanced: Action Buttons Inside Tabs
+
+Auto-Wire juga works untuk DataTable **inside tabs**:
+
+```php
+// Tab content dengan DataTable
+<div id="tab-history" class="wpdt-tab-content">
+    <table id="history-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Action</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2025-12-28</td>
+                <td>Updated</td>
+                <td>
+                    <button class="wpdt-edit-btn" data-id="<?php echo $id; ?>" data-entity="customer">
+                        Edit
+                    </button>
+                    <button class="wpdt-delete-btn" data-id="<?php echo $id; ?>" data-entity="customer">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+// Initialize DataTable when tab switched
+jQuery(document).on('wpdt:tab-switched', function(e, data) {
+    if (data.tabId === 'history' && !jQuery.fn.DataTable.isDataTable('#history-table')) {
+        jQuery('#history-table').DataTable({
+            columnDefs: [
+                {
+                    targets: -1, // Actions column
+                    orderable: false,
+                    searchable: false,
+                }
+            ]
+        });
+    }
+});
+</script>
+```
+
+**Complete Example:** See `wp-datatable/examples/complete-auto-wire-example.php`
+
+---
+
 ## 🔌 Hooks & Filters
 
 ### Action Hooks
@@ -402,6 +650,7 @@ jQuery(document).ready(function($) {
 |------|-------------|------------|--------|
 | `wpdt_use_dual_panel` | Signal dual panel usage | `$use` | `bool` |
 | `wpdt_use_single_panel` | Signal single panel usage | `$use` | `bool` |
+| `wpdt_localize_data` | Inject auto-wire config | `$data` | `array` |
 | `wpdt_datatable_tabs` | Register tabs | `$tabs, $entity` | `array` |
 | `wpdt_datatable_filters` | Register filters | `$filters, $entity` | `array` |
 | `wpdt_datatable_stats` | Register stats | `$stats, $entity` | `array` |
@@ -427,6 +676,13 @@ jQuery(document).ready(function($) {
 wp-datatable/
 ├── wp-datatable.php              # Main plugin file
 ├── README.md                     # This file
+│
+├── examples/                     # Reference implementations ⭐ NEW
+│   ├── README.md                 # Examples documentation
+│   ├── complete-auto-wire-example.php   # Production-ready auto-wire template
+│   ├── DataTableHelpers-Example.php     # Helper functions demo
+│   ├── test-abstractdatatable-v2.php    # AbstractDataTable v2 usage
+│   └── QUICK-REFERENCE.md               # Quick reference guide
 │
 ├── includes/                     # Core includes
 │   ├── class-autoloader.php      # PSR-4 autoloader
@@ -481,6 +737,7 @@ wp-datatable/
         ├── dual-panel/
         │   ├── panel-manager.js
         │   ├── tab-manager.js
+        │   ├── modal-integration.js  # ⭐ Auto-wire system
         │   └── auto-refresh.js
         │
         └── single-panel/
@@ -592,6 +849,35 @@ See `wp-datatable-test` plugin for complete example.
 
 ## 📝 Changelog
 
+### Version 0.2.0 (2025-12-28) ⭐ NEW
+
+**Auto-Wire System**
+- ✅ Filter-based config injection (`wpdt_localize_data`)
+- ✅ Modal integration (wp-modal plugin)
+- ✅ Auto-wire Edit/Delete buttons (zero JavaScript!)
+- ✅ Automatic nonce handling
+- ✅ DataTable auto-refresh after operations
+- ✅ Success/error notifications
+- ✅ Action buttons inside tabs support
+
+**Examples & Documentation**
+- ✅ Complete auto-wire example (`examples/complete-auto-wire-example.php`)
+- ✅ Examples README (`examples/README.md`)
+- ✅ Updated main README with auto-wire documentation
+- ✅ wp-datatable-test plugin (working demo)
+
+**Bug Fixes**
+- ✅ Fixed modal-integration.js nonce handling
+- ✅ Fixed wp-modal JSON response parsing
+- ✅ Fixed tab IDs (details/history) alignment
+- ✅ Fixed DataTable inside tabs initialization
+- ✅ Fixed file permissions (644 for web-accessible files)
+
+**Known Issues:**
+- Requires wp-modal plugin as dependency
+
+---
+
 ### Version 0.1.0 (2025-11-08)
 
 **Initial Release**
@@ -616,9 +902,6 @@ See `wp-datatable-test` plugin for complete example.
 - Hash navigation
 - Event-driven architecture
 - Conditional asset loading
-
-**Known Issues:**
-- None reported
 
 ---
 
