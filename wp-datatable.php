@@ -179,4 +179,6 @@ function run_wp_datatable() {
     $plugin = WP_DataTable::getInstance();
     $plugin->run();
 }
-run_wp_datatable();
+
+// Initialize on plugins_loaded to ensure consistent loading order
+add_action('plugins_loaded', 'run_wp_datatable', 10);
