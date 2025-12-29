@@ -1,5 +1,9 @@
 # DataTableHelpers Trait - Quick Reference
 
+← [Back to Examples Index](README.md) | [Main Documentation](../README.md) | [Dual Panel Pattern](../docs/patterns/dual-panel.md)
+
+---
+
 ## 🎯 Purpose
 
 Provide UI helper methods for DataTable models that extend from **wp-app-core's DataTableModel**.

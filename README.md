@@ -295,6 +295,40 @@ DashboardTemplate::render([
 ]);
 ```
 
+### ⚠️ CRITICAL: Required CSS Classes for Tab System
+
+**Tab system requires specific CSS classes to work!** Using wrong classes will cause all tabs to display stacked vertically instead of switching.
+
+**Quick Reference:**
+```html
+<!-- ✅ CORRECT -->
+<div class="wpdt-tab-wrapper">              <!-- NOT nav-tab-wrapper -->
+    <a class="nav-tab" data-tab="info">...</a>
+</div>
+
+<div id="info" class="wpdt-tab-content active">  <!-- NOT tab-content -->
+    <!-- First tab content -->
+</div>
+
+<div id="staff" class="wpdt-tab-content">   <!-- No active class -->
+    <!-- Other tabs -->
+</div>
+```
+
+**Why these classes?**
+- `wpdt-tab-wrapper` - Required by `tab-manager.js` (line 88)
+- `wpdt-tab-content` - Required by CSS rules and `tab-manager.js` (line 95)
+- `active` class - Makes first tab visible on load
+
+**❌ Common Mistakes:**
+- Using `nav-tab-wrapper` instead of `wpdt-tab-wrapper` → Tabs won't switch
+- Using `tab-content` instead of `wpdt-tab-content` → All tabs visible, stacked
+- Missing `active` on first tab → All tabs hidden
+
+📖 **Complete guide:** See [docs/patterns/dual-panel.md](docs/patterns/dual-panel.md#step-4-html-structure--required-css-classes) for full HTML examples, debugging tips, and technical details.
+
+---
+
 ### Available Hooks
 
 #### Content Hooks

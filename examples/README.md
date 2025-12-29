@@ -61,7 +61,15 @@ AbstractDataTable v2 usage example.
 Trait loading mechanism test.
 
 ### `QUICK-REFERENCE.md`
-Quick reference guide for common tasks.
+**DataTableHelpers Trait API Reference**
+
+Detailed documentation for using DataTableHelpers trait in your DataTable models:
+- `generate_action_buttons()` - Create edit/delete buttons with permissions
+- `format_status_badge()` - Colored status badges
+- `format_panel_row_data()` - Panel integration data
+- `esc_output()` - Safe HTML escaping with fallback
+
+→ **[Read Full API Reference](QUICK-REFERENCE.md)**
 
 ---
 

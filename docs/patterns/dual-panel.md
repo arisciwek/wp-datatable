@@ -26,17 +26,24 @@ Backend (PHP)
 [ ] 12. Tab 2+ views: Lazy-load dengan wpdt-tab-autoload
 [ ] 13. Tab partial views: No outer wrapper div
 
+HTML Structure (CRITICAL!)
+[ ] 14. Right panel: Use wpdt-tab-wrapper (NOT nav-tab-wrapper)
+[ ] 15. Tab content: Use wpdt-tab-content (NOT tab-content)
+[ ] 16. First tab: Must have "active" class
+[ ] 17. Tab IDs: Match data-tab attribute in nav links
+[ ] 18. Verify in browser: Check CSS classes in DevTools
+
 Frontend (JavaScript)
-[ ] 14. Main DataTable: createdRow callback
-[ ] 15. Main DataTable: Register to wpdtPanelManager
-[ ] 16. Nested DataTable: Listen wpdt:tab-switched event
-[ ] 17. Nested DataTable: Check isDataTable before init
+[ ] 19. Main DataTable: createdRow callback
+[ ] 20. Main DataTable: Register to wpdtPanelManager
+[ ] 21. Nested DataTable: Listen wpdt:tab-switched event
+[ ] 22. Nested DataTable: Check isDataTable before init
 
 Security & Data
-[ ] 18. All AJAX: wpdt_nonce verification
-[ ] 19. All AJAX: Capability checks
-[ ] 20. All AJAX: Input sanitization
-[ ] 21. All AJAX: Response format ['html' => $html] or direct DataTable JSON
+[ ] 23. All AJAX: wpdt_nonce verification
+[ ] 24. All AJAX: Capability checks
+[ ] 25. All AJAX: Input sanitization
+[ ] 26. All AJAX: Response format ['html' => $html] or direct DataTable JSON
 ```
 
 ---
@@ -620,4 +627,252 @@ Continue in same controller file:
 
 ---
 
-Dokumentasi masih berlanjut... Saya sudah membuat 4 file pertama. Apakah saya lanjutkan dengan file-file berikutnya (View templates, JavaScript patterns, dll)? Atau Anda ingin review dulu yang sudah dibuat?
+### Step 4: HTML Structure & Required CSS Classes
+
+**⚠️ CRITICAL:** Tab system requires specific CSS classes to work correctly. Using wrong classes will cause all tabs to display stacked vertically instead of switching.
+
+#### Required CSS Classes
+
+**1. Tab Navigation Wrapper**
+
+```html
+<!-- ✅ CORRECT: Use wpdt-tab-wrapper -->
+<div class="wpdt-tab-wrapper">
+    <a href="#" class="nav-tab nav-tab-active" data-tab="info">Info</a>
+    <a href="#" class="nav-tab" data-tab="staff">Staff</a>
+    <a href="#" class="nav-tab" data-tab="history">History</a>
+</div>
+
+<!-- ❌ WRONG: Do NOT use nav-tab-wrapper -->
+<div class="nav-tab-wrapper">
+    <!-- This won't work! tab-manager.js looks for .wpdt-tab-wrapper -->
+</div>
+```
+
+**Why `wpdt-tab-wrapper`?**
+- Required by `tab-manager.js` (line 88): `this.tabWrapper = $('.wpdt-tab-wrapper')`
+- Without this class, JavaScript cannot find tab navigation
+- Result: Tabs won't switch when clicked
+
+---
+
+**2. Tab Content Containers**
+
+```html
+<!-- ✅ CORRECT: Use wpdt-tab-content + active on first tab -->
+<div id="info" class="wpdt-tab-content active">
+    <!-- First tab content - visible by default -->
+    <h3>Company Information</h3>
+    <table>...</table>
+</div>
+
+<div id="staff" class="wpdt-tab-content">
+    <!-- Second tab content - hidden by default -->
+    <h3>Staff List</h3>
+    <table>...</table>
+</div>
+
+<div id="history" class="wpdt-tab-content">
+    <!-- Third tab content - hidden by default -->
+    <h3>History</h3>
+    <table>...</table>
+</div>
+
+<!-- ❌ WRONG: Do NOT use tab-content -->
+<div id="info" class="tab-content">
+    <!-- CSS rules won't apply! -->
+</div>
+
+<!-- ❌ WRONG: Missing 'active' class on first tab -->
+<div id="info" class="wpdt-tab-content">
+    <!-- All tabs will be hidden! -->
+</div>
+```
+
+**Why `wpdt-tab-content`?**
+- Required by `tab-manager.js` (line 95): `this.tabContents = $('.wpdt-tab-content')`
+- Required by CSS inline styles:
+  ```css
+  .wpdt-tab-content { display: none !important; }
+  .wpdt-tab-content.active { display: block !important; }
+  ```
+- Without this class:
+  - CSS hiding rules won't apply
+  - All tabs will display stacked vertically
+  - Tab switching won't work
+
+**Why `active` class on first tab?**
+- Makes first tab visible on page load
+- Without it, ALL tabs will be hidden initially
+- Must be added to first tab only
+
+---
+
+#### Complete HTML Example
+
+**File**: `src/Views/admin/company/right-panel.php`
+
+```html
+<?php
+/**
+ * Company Right Panel Template
+ *
+ * ⚠️ IMPORTANT: Must use wpdt- prefixed classes for tab system to work!
+ */
+
+defined('ABSPATH') || exit;
+?>
+
+<div class="wpdt-panel-header">
+    <h2>Company Details: <span id="company-name"></span></h2>
+    <button type="button" class="wpdt-close-panel">×</button>
+</div>
+
+<div class="wpdt-panel-content">
+
+    <!-- ✅ Tab Navigation - MUST use wpdt-tab-wrapper -->
+    <div class="wpdt-tab-wrapper">
+        <a href="#" class="nav-tab nav-tab-active" data-tab="info">
+            <?php _e('Company Info', 'your-plugin'); ?>
+        </a>
+        <a href="#" class="nav-tab" data-tab="staff">
+            <?php _e('Staff', 'your-plugin'); ?>
+        </a>
+        <a href="#" class="nav-tab" data-tab="history">
+            <?php _e('History', 'your-plugin'); ?>
+        </a>
+    </div>
+
+    <!-- ✅ Tab 1: Info - MUST have wpdt-tab-content + active -->
+    <div id="info" class="wpdt-tab-content active">
+        <h3><?php _e('Company Information', 'your-plugin'); ?></h3>
+        <table class="form-table">
+            <tr>
+                <th><?php _e('Company Name', 'your-plugin'); ?></th>
+                <td><span id="company-name-value"></span></td>
+            </tr>
+            <tr>
+                <th><?php _e('Code', 'your-plugin'); ?></th>
+                <td><span id="company-code"></span></td>
+            </tr>
+            <tr>
+                <th><?php _e('Email', 'your-plugin'); ?></th>
+                <td><span id="company-email"></span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ✅ Tab 2: Staff - MUST have wpdt-tab-content (no active) -->
+    <div id="staff" class="wpdt-tab-content">
+        <h3><?php _e('Staff Members', 'your-plugin'); ?></h3>
+
+        <!-- Example: DataTable inside tab -->
+        <table id="staff-table" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th><?php _e('Name', 'your-plugin'); ?></th>
+                    <th><?php _e('Position', 'your-plugin'); ?></th>
+                    <th><?php _e('Email', 'your-plugin'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- DataTable will populate via AJAX -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ✅ Tab 3: History - MUST have wpdt-tab-content (no active) -->
+    <div id="history" class="wpdt-tab-content">
+        <h3><?php _e('Activity History', 'your-plugin'); ?></h3>
+        <div class="history-timeline">
+            <!-- History content -->
+        </div>
+    </div>
+
+</div>
+```
+
+---
+
+#### Common Mistakes & Fixes
+
+| ❌ Mistake | ✅ Fix | 🔍 Symptom |
+|-----------|--------|-----------|
+| `<div class="nav-tab-wrapper">` | Use `wpdt-tab-wrapper` | Tabs don't switch when clicked |
+| `<div class="tab-content">` | Use `wpdt-tab-content` | All tabs visible, stacked vertically |
+| Missing `active` on first tab | Add `active` to first `wpdt-tab-content` | All tabs hidden on page load |
+| `active` on multiple tabs | Only first tab should have `active` | Multiple tabs visible at once |
+| Wrong `id` attribute | Must match `data-tab` in nav link | Clicking tab has no effect |
+
+---
+
+#### Debugging Tab Issues
+
+**Problem**: All tabs showing stacked vertically
+
+**Check**:
+1. Inspect HTML in browser DevTools
+2. Find tab wrapper - should be `<div class="wpdt-tab-wrapper">`
+3. Find tab contents - should be `<div class="wpdt-tab-content">`
+4. Check first tab has `<div class="wpdt-tab-content active">`
+
+**Fix**:
+```bash
+# Search for wrong classes in your templates
+grep -r "nav-tab-wrapper" src/Views/
+grep -r 'class="tab-content"' src/Views/
+
+# Should use:
+# - wpdt-tab-wrapper (not nav-tab-wrapper)
+# - wpdt-tab-content (not tab-content)
+```
+
+**Verify JavaScript**:
+```javascript
+// In browser console
+console.log('Tab wrapper found:', jQuery('.wpdt-tab-wrapper').length); // Should be 1
+console.log('Tab contents found:', jQuery('.wpdt-tab-content').length); // Should be 3 (or your tab count)
+console.log('Active tab found:', jQuery('.wpdt-tab-content.active').length); // Should be 1
+```
+
+---
+
+#### Why These Specific Classes?
+
+**Technical Details:**
+
+1. **JavaScript Selectors** (`tab-manager.js`):
+   ```javascript
+   // Line 88: Looking for tab wrapper
+   this.tabWrapper = $('.wpdt-tab-wrapper');
+
+   // Line 95: Looking for tab contents
+   this.tabContents = $('.wpdt-tab-content');
+
+   // Line 207: Removing active class
+   this.tabContents.removeClass('active');
+
+   // Line 210: Adding active class
+   $targetContent.addClass('active');
+   ```
+
+2. **CSS Rules** (inline styles in `AgencyDashboardController.php`):
+   ```css
+   .wpdt-tab-content {
+       display: none !important;  /* Hide all tabs by default */
+   }
+   .wpdt-tab-content.active {
+       display: block !important; /* Show only active tab */
+   }
+   ```
+
+3. **Naming Convention**:
+   - `wpdt-` prefix = WP DataTable framework
+   - Prevents conflicts with WordPress core classes
+   - Consistent with framework patterns
+
+---
+
+### Step 5: View Templates
+
+Continue with view template examples...
